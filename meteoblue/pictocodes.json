@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "create_date": "2024-12-21 10:16",
+    "version": "1.4",
+    "description": "Meteoblue Pictocodes",
+    "author": "Elias Pahls"
+  },
+  "data_1h": {
+    "en_GB": [ "Clear, cloudless sky", "Clear, few cirrus", "Clear with cirrus", "Clear with few low clouds", "Clear with few low clouds and few cirrus", "Clear with few low clouds and cirrus", "Partly cloudy", "Partly cloudy and few cirrus", "Partly cloudy and cirrus", "Mixed with some thunderstorm clouds possible", "Mixed with few cirrus with some thunderstorm clouds possible", "Mixed with cirrus with some thunderstorm clouds possible", "Clear but hazy", "Clear but hazy with few cirrus", "Clear but hazy with cirrus", "Fog/low stratus clouds", "Fog/low stratus clouds with few cirrus", "Fog/low stratus clouds with cirrus", "Mostly cloudy", "Mostly cloudy and few cirrus", "Mostly cloudy and cirrus", "Overcast", "Overcast with rain", "Overcast with snow", "Overcast with heavy rain", "Overcast with heavy snow", "Rain, thunderstorms likely", "Light rain, thunderstorms likely", "Storm with heavy snow", "Heavy rain, thunderstorms likely", "Mixed with showers", "Mixed with snow showers", "Overcast with light rain", "Overcast with light snow", "Overcast with mixture of snow and rain" ],
+    "pictocode": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+  },
+  "data_daily": {
+    "en_GB": ["Clear, cloudless sky","Clear and few clouds","Partly cloudy","Overcast","Fog","Overcast with rain","Mixed with showers","Showers, thunderstorms likely","Overcast with snow","Mixed with snow showers","Mostly cloudy with snow and rain","Overcast with light rain","Overcast with light snow","Mostly cloudy with rain","Mostly cloudy with snow","Mostly cloudy with light rain","Mostly cloudy with light snow","Dusty","Dust Storm"],
+    "pictocode": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+  }
+}
