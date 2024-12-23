@@ -3,7 +3,7 @@ from ascii_formatter import format_weather_to_ascii, write_ascii_to_file
 
 def main():
     # Meteoblue API settings
-    API_KEY = "<your-api-key>"
+    API_KEY = "wEir9pPKohA5Fvl1"
 
     # Get location and coordinates
     location = "Varanasi, India"

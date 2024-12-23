@@ -1,3 +1,5 @@
+# meteoblue-cli
+ 
 A command-line weather application that fetches detailed weather forecasts from
 the Meteoblue API and formats them into an easy-to-read ASCII report. A free
 meteoblue API Key is available at [https://content.meteoblue.com/en](https://content.meteoblue.com/en).
