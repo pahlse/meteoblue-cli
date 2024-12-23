@@ -52,38 +52,49 @@ def fetch_osm_location(location_name):
         return {"error": str(e)}
 
 
-def fetch_weather_report():
+def fetch_weather_report(API_KEY, LAT, LON, CITY):
     """Fetches weekly wether forecast from the Meteoblue API and save it locally."""
-    base_url = (
-        f"https://my.meteoblue.com/packages/basic-3h_basic-day_current_clouds-day_"
-        f"sunmoon_airquality-3h_airquality-day?apikey={API_KEY}&lat={LOCATION.split(',')[0]}"
-        f"&lon={LOCATION.split(',')[1]}&format=json"
+
+    base_url = (f"https://my.meteoblue.com/packages/basic-15min_basic-1h_basic-3h_basic-day_"
+                                f"current_clouds-day_sunmoon_airquality-1h_airquality-3h_airquality-day?"
+                                f"apikey={API_KEY}&lat={LAT}&lon={LON}&format=json"
     )
 
     response = requests.get(base_url)
     response.raise_for_status()
-
+    
+    print(f"Fetched new weather data for {CITY}")
     weather_data = response.json()
     with open(weather_report_path, "w") as file:
         json.dump(weather_data, file, indent=4)
 
-    backup_file = os.path.join(backup_dir, f"{datetime.now().strftime('%Y-%m-%d')}-{CITY.replace(' ', '_')}.json")
+    backup_path = os.path.join(backup_dir, CITY.replace(' ', '_'))
+    backup_file = os.path.join(
+        backup_path, f"{datetime.now().strftime('%Y-%m-%d')}-{CITY.replace(' ', '_')}.json"
+    )
+
+    os.makedirs(backup_path, exist_ok=True)
+    print(f"Backup saved in  /{CITY}")
+
     with open(backup_file, "w") as file:
         json.dump(weather_data, file, indent=4)
 
     return weather_data
 
 
-def load_weather_report():
+def load_weather_report(API_KEY, LAT, LON, CITY):
     """Load the weather report from the local cache or fetch it if missing."""
+
     if os.path.exists(weather_report_path):
+        print(f"Using weather data from cached file.")
         with open(weather_report_path, "r") as file:
             return json.load(file)
-    return fetch_weather_report()
+    return fetch_weather_report(API_KEY, LAT, LON, CITY)
 
 
 def get_pictocode_description(pictocode):
     """Look up the description for a pictocode."""
+
     with open(pictocode_file_path, "r") as file:
         pictocode_data = json.load(file)
 
