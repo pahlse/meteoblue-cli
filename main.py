@@ -7,7 +7,7 @@ from ascii_formatter import format_weather_to_ascii, write_ascii_to_file
 
 def main():
     # Meteoblue API settings
-    api_key = "wEir9pPKohA5Fvl1"
+    api_key = ""
 
     # Get location and coordinates
     location = "Stephenville, Texas"

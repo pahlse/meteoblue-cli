@@ -1,148 +1,98 @@
-import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
-import numpy as np
+import matplotlib.pyplot as plt
 import json
-
-from scipy.signal import argrelextrema
-from datetime import datetime
-
-# Set page configuration
-st.set_page_config(page_title="Temperature and Precipitation Visualization", layout="wide")
 
 # Load the JSON weather data
 with open('./meteoblue/weather_cache/weatherreport.json', 'r') as file:
     weather_data = json.load(file)
 
+# Extract data
+rainspot_data = weather_data['data_3h']['rainspot']
+timestamps_3h = pd.to_datetime(weather_data['data_3h']['time'])
+hourly_rainfall = weather_data['data_1h']['precipitation']
+hourly_temp = weather_data['data_1h']['temperature']
+hourly_timestamps = pd.to_datetime(weather_data['data_1h']['time'])
 
-# Sample weather data (replace with real data as needed)
-daily_data = [
-    {"day": "Mon", "date": "Today", "temp": "19°C", "wind": "22 km/h", "precip": "5 h", "icon": "🌞"},
-    {"day": "Tue", "date": "Tomorrow", "temp": "18°C", "wind": "14 km/h", "precip": "2 h", "icon": "⛈"},
-    {"day": "Wed", "date": "12-25", "temp": "16°C", "wind": "10 km/h", "precip": "4 h", "icon": "🌞"},
-    {"day": "Thu", "date": "12-26", "temp": "20°C", "wind": "14 km/h", "precip": "3 h", "icon": "🌦"},
-    {"day": "Fri", "date": "12-27", "temp": "21°C", "wind": "11 km/h", "precip": "-", "icon": "🌞"},
-    {"day": "Sat", "date": "12-28", "temp": "22°C", "wind": "17 km/h", "precip": "5 h", "icon": "🌤"},
-    {"day": "Sun", "date": "12-29", "temp": "23°C", "wind": "12 km/h", "precip": "9 h", "icon": "🌞"},
-]
+# Function to filter data dynamically based on input datetime and duration
+# Function to filter data dynamically based on input datetime and duration
+def get_data_from_datetime(input_datetime, duration_hours):
+    num_intervals = max(1, duration_hours // 3)  # Calculate the number of 3-hour intervals
+    input_datetime = pd.Timestamp(input_datetime)
+    
+    # Get the 3-hourly timestamps and data for the specified range
+    valid_timestamps_3h = timestamps_3h[timestamps_3h >= input_datetime][:num_intervals]
+    indices_3h = [timestamps_3h.get_loc(ts) for ts in valid_timestamps_3h]
+    input_strings = [rainspot_data[i] for i in indices_3h]
+    timestamps = valid_timestamps_3h
 
-# Layout for 7 boxes
-st.title("7-Day Weather Forecast")
+    # Get the hourly timestamps and data for the specified range
+    start_index_hourly = hourly_timestamps.get_loc(hourly_timestamps[hourly_timestamps >= input_datetime][0])
+    indices_hourly = range(start_index_hourly, start_index_hourly + max(3, duration_hours))
+    hourly_rainfall_filtered = [hourly_rainfall[i] for i in indices_hourly]
+    hourly_timestamps_filtered = hourly_timestamps[indices_hourly]
 
-columns = st.columns(7)  # Create 7 equal columns
+    return input_strings, timestamps, hourly_rainfall_filtered, hourly_timestamps_filtered, num_intervals
 
-for i, col in enumerate(columns):
-    with col:
-        st.subheader(daily_data[i]["day"])
-        st.text(daily_data[i]["date"])
-        st.markdown(f"<h1 style='text-align: center;'>{daily_data[i]['icon']}</h1>", unsafe_allow_html=True)
-        st.text(f"Temp: {daily_data[i]['temp']}")
-        st.text(f"Wind: {daily_data[i]['wind']}")
-        st.text(f"Precip: {daily_data[i]['precip']}")
+# Example usage
+input_datetime = "2024-12-24T09:00:00"  # Input datetime
+duration_hours = 9  # Number of hours to display (e.g., next 6 hours)
+input_strings, timestamps, hourly_rainfall_filtered, hourly_timestamps_filtered, num_intervals = get_data_from_datetime(input_datetime, duration_hours)
 
+# Define color mapping for rainspots
+colors = {
+    '0': '#f0f0f0',
+    '1': '#7bccc4',
+    '2': '#43a2ca',
+    '3': '#0868ac',
+    '9': '#a8ddb5'
+}
 
+# Split hourly rainfall into chunks of 3 for each rainspot grid
+rainfall_chunks = [hourly_rainfall_filtered[i:i + 3] for i in range(0, len(hourly_rainfall_filtered), 3)]
 
-# Extract temperature, precipitation, and datetime
-temperature = np.array(weather_data['data_1h']['temperature'])
-precipitation = np.array(weather_data['data_1h']['precipitation'])
-time = pd.to_datetime(weather_data['data_1h']['time'])
+# Plot rainspots and corresponding hourly rainfall dynamically
+fig, axes = plt.subplots(2, num_intervals, figsize=(5 * num_intervals, 10), gridspec_kw={'height_ratios': [2, 1]})
 
-current_datetime = pd.Timestamp(datetime.now())
+if num_intervals == 1:
+    axes = [[axes[0]], [axes[1]]]  # Wrap single Axes into lists for consistency
 
-# Create a DataFrame
-df = pd.DataFrame({
-    'Datetime': time,
-    'Temperature': temperature,
-    'Precipitation': precipitation
-})
+# Plot rainspot grids (top row)
+for idx, (ax, input_string, timestamp) in enumerate(zip(axes[0], input_strings, timestamps)):
+    grid_size = 7
+    rows = [input_string[i:i + grid_size] for i in range(0, len(input_string), grid_size)][::-1]
+    color_grid = [[colors[char] for char in row] for row in rows]
 
-# Identify maximum and minimum
-local_maxima = argrelextrema(temperature, np.greater)[0]
-local_minima = argrelextrema(temperature, np.less)[0]
+    # Plot the grid
+    for y, row in enumerate(color_grid):
+        for x, color in enumerate(row):
+            ax.add_patch(plt.Rectangle((x, y), 1, 1, color=color))
 
-# Prepare Plotly figure
-fig = go.Figure()
+    # Draw concentric circles
+    for i in range(1, 5):
+        circle = plt.Circle((3.5, 3.5), radius=i - 0.5, color='black', fill=False, linewidth=1)
+        ax.add_patch(circle)
 
-# Add precipitation bars
-fig.add_trace(
-    go.Bar(
-        x=df['Datetime'],
-        y=df['Precipitation'],
-        name="Precipitation",
-        marker=dict(color='blue', opacity=0.6),
-        yaxis="y2"  # Secondary y-axis
-    )
-)
+    # Add timestamp as title
+    ax.set_title(timestamp.strftime("%Y-%m-%d %H:%M:%S"), fontsize=10)
 
-# Add line for temperature
-fig.add_trace(
-    go.Scatter(
-        x=df['Datetime'],
-        y=df['Temperature'],
-        mode='lines',
-        line=dict(color='green', width=2),
-        name="Temperature",
-    )
-)
+    # Configure the axis
+    ax.set_xlim(0, grid_size)
+    ax.set_ylim(0, grid_size)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect('equal')
 
-# Add maxima points
-fig.add_trace(
-    go.Scatter(
-        x=df['Datetime'].iloc[local_maxima],
-        y=df['Temperature'].iloc[local_maxima],
-        mode='markers+text',
-        marker=dict(size=10, color='orange', symbol='triangle-up'),
-        text=[f"{temperature[_]:.2f}" for _ in local_maxima],
-        textposition='top center',
-        name="Maxima",
-        showlegend=False
-    )
-)
+# Plot hourly rainfall chunks (bottom row)
+for idx, (ax, rainfall_chunk) in enumerate(zip(axes[1], rainfall_chunks)):
+    ax.bar(range(len(rainfall_chunk)), rainfall_chunk, color='blue', alpha=0.7, width=0.5)
+    ax.set_xticks(range(len(rainfall_chunk)))
+    ax.set_xticklabels([hourly_timestamps_filtered[i].strftime("%H:%M") for i in range(idx * 3, idx * 3 + 3)])
+    ax.set_ylim(0, max(hourly_rainfall_filtered) + 1)  # Adjust y-axis based on max rainfall
+    ax.set_ylabel("Rainfall (mm)", fontsize=8)
+    ax.set_xlabel("Hour", fontsize=8)
 
-# Add minima points
-fig.add_trace(
-    go.Scatter(
-        x=df['Datetime'].iloc[local_minima],
-        y=df['Temperature'].iloc[local_minima],
-        mode='markers+text',
-        marker=dict(size=10, color='blue', symbol='triangle-down'),
-        text=[f"{temperature[_]:.2f}" for _ in local_minima],
-        textposition='bottom center',
-        name="Minima",
-        showlegend=False
-    )
-)
-
-# Configure layout with secondary y-axis
-fig.update_layout(
-    shapes=[
-        dict(
-            type='line',
-            x0=current_datetime,
-            x1=current_datetime,
-            y0=df['Temperature'].min(),
-            y1=df['Temperature'].max(),
-            line=dict(color="red", width=2, dash="dash"),
-            xref='x',
-            yref='y'
-        )
-    ],
-    title="Temperature and Precipitation Forecast",
-    xaxis_title="Datetime",
-    yaxis=dict(title="Temperature (°C)", side='left'),
-    yaxis2=dict(title="Precipitation (mm)", overlaying='y', side='right'),
-    template="plotly_white",
-    xaxis=dict(
-        range=[
-            df['Datetime'].min(),  # Start date
-            df['Datetime'].min() + pd.Timedelta(days=4)  # Start date + 4 days
-        ]
-    )
-)
-
-# Streamlit app
-st.title("Temperature and Precipitation Forecast")
-st.write("This plot shows temperature and precipitation data over time, with one maximum and minimum identified per 12-hour interval.")
-
-# Display the plot
-st.plotly_chart(fig, use_container_width=True)
+# Adjust layout and show
+# Adjust layout and save to file
+plt.tight_layout()
+plt.savefig("rainspot_plot.png", dpi=300, bbox_inches="tight")
+# plt.show()

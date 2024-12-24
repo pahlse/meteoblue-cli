@@ -1,27 +1,27 @@
 # meteoblue-cli
  
-A command-line weather application that fetches detailed weather forecasts from
-the Meteoblue API and formats them into an easy-to-read ASCII report. A free
-meteoblue API Key is available at [https://content.meteoblue.com/en](https://content.meteoblue.com/en).
+A soon-to-be command-line weather application that fetches detailed weather
+forecasts from the Meteoblue API and plots a combination of hourly, 3-hourly
+and daily forecasts. A 1-year free meteoblue API Key is available at
+[https://content.meteoblue.com/en](https://content.meteoblue.com/en).
 
 ## Features
 
 - Fetch current weather data using the **Meteoblue API**.
 - Supports custom locations using the **OpenStreetMap Nominatim API**.
-- Formats weather data into **ASCII based reports**.
-- Saves reports to disk for offline viewing.
+- Formats weather data into a graph overwiew
+- Caches reports to for offline viewing (and saving on API usage).
 - Automatically backs up weather data in a structured directory.
 
+# Example
 
-## Configuration
+This is how 3-hourly rainspot and hourly precipitation data could be
+structured. Based on the example of Stephenville, Texas. 
 
-### API Key
-Update the `API_KEY` variable in `main.py` with your personal Meteoblue API key.
+![Example Image](./rainspot_plot.png)
 
-### Custom Locations
-Modify the `location` variable in `main.py` to use a city name or coordinates:
+## To-Do
 
-```python
-location = "New York, USA"
-location = "40.66, -73.93"
-```
+- Integrate py plotting with main.
+- Flesh out the hourly, daily, and weekly overviews
+- Decide on a frontend; currently saves to png
