@@ -56,7 +56,7 @@ def fetch_weather_report(API_KEY, LAT, LON, CITY):
     """Fetches weekly wether forecast from the Meteoblue API and save it locally."""
 
     base_url = (f"https://my.meteoblue.com/packages/basic-15min_basic-1h_basic-3h_basic-day_"
-                                f"current_clouds-day_sunmoon_airquality-1h_airquality-3h_airquality-day?"
+                                f"current_clouds-day_clouds-3h__sunmoon_airquality-3h_airquality-day?"
                                 f"apikey={API_KEY}&lat={LAT}&lon={LON}&format=json"
     )
 

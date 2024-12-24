@@ -3,7 +3,6 @@ import pandas as pd
 import plotille
 
 from data_parser import fetch_osm_location, load_weather_report
-from ascii_formatter import format_weather_to_ascii, write_ascii_to_file
 
 def main():
     # Meteoblue API settings

@@ -16,7 +16,7 @@ and daily forecasts. A 1-year free meteoblue API Key is available at
 # Example
 
 This is how 3-hourly rainspot and hourly precipitation data could be
-structured. Based on the example of Stephenville, Texas. 
+structured. Based on the example of Stephenville, Texas, 24/12/2024.
 
 ![Example Image](./rainspot_plot.png)
 
