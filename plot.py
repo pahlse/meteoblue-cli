@@ -67,9 +67,8 @@ for idx, ax in enumerate(axes[0]):
         f"{'Rain Prob:':<12}{precipitation_probability[idx]:>5}%\n"
         f"{'Humidity:':<12}{relativehumidity[idx]:>5}%\n"
         f"{'Temp:':<12}{felttemperature[idx]:>5}°C\n"
-        f"{'Wind:':<12}{windspeed[idx]:>6.1f} m/s\n"
-        f"{'Wind Dir:':<12}{winddirection[idx]:>5}°\n"
-        f"{'Cloud:':<12}{totalcloudcover[idx]:>5}%\n"
+        f"{'Wind:':<12}{windspeed[idx]*3.6:>6.1f} km/h\n"
+        f"{'Cloud Cover:':<12}{totalcloudcover[idx]:>5}%\n"
         f"{'Fog Prob:':<12}{fog_probability[idx]:>5}%\n"
         f"{'Visibility:':<12}{visibility[idx] / 1000:>5.1f} km\n"
         f"{'UV Index:':<12}{uvindex[idx]:>5}/11\n"
@@ -85,7 +84,7 @@ for idx, ax in enumerate(axes[0]):
         linespacing=1.5,
         bbox=dict(facecolor="white", edgecolor="black", pad=5)  # Add padding for aesthetics
     )
-    ax.set_xlim(0, 7)
+    ax.set_xlim(0, 10)
     ax.set_ylim(0, 1)
     ax.axis("off")
 
@@ -107,7 +106,7 @@ for idx, (ax, rainspot, timestamp) in enumerate(zip(axes[1], rainspot_data, time
 
     # Add wind direction arrow
     wind_dir = winddirection[idx]
-    arrow_length = grid_size / 2 * (1 - np.exp(-0.198 * windspeed[idx]))
+    arrow_length = grid_size / 2 * (1 - np.exp(-0.198 * windspeed[idx])) - 0.5
     angle_rad = np.deg2rad(wind_dir)
     dx, dy = arrow_length * np.sin(angle_rad), arrow_length * np.cos(angle_rad)
     ax.arrow(
@@ -127,9 +126,9 @@ for idx, (ax, rainspot, timestamp) in enumerate(zip(axes[1], rainspot_data, time
 for idx, (ax, rainfall_chunk) in enumerate(zip(axes[2], rainfall_chunks)):
     bars = ax.bar(range(len(rainfall_chunk)), rainfall_chunk, color='blue', alpha=0.7, width=0.5)
     for bar, value in zip(bars, rainfall_chunk):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.1, f"{value:.1f}", ha="center", va="bottom", fontsize=dynamic_fontsize - 2)
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.1, f"{value:.1f}", ha="center", va="bottom", fontsize=dynamic_fontsize - 5)
     ax.set_xticks(range(len(rainfall_chunk)))
-    ax.set_xticklabels([hourly_timestamps[i].strftime("%H") for i in range(idx * 3, idx * 3 + 3)], fontsize=dynamic_fontsize - 10)
+    ax.set_xticklabels([hourly_timestamps[i].strftime("%H:%M") for i in range(idx * 3, idx * 3 + 3)], fontsize=dynamic_fontsize - 5)
     ax.set_ylim(0, max(hourly_rainfall) + 1)
     ax.set_yticks([])
 

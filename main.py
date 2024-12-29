@@ -6,7 +6,7 @@ from data_parser import fetch_osm_location, load_weather_report
 
 def main():
     # Meteoblue API settings
-    api_key = ""
+    api_key = os.getenv("METEOBLUE_KEY")  # Fetch the API key from the environment variable
 
     # Get location and coordinates
     location = "Stephenville, Texas"
